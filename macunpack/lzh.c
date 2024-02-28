@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <string.h>
 #include "macunpack.h"
 #ifdef LZH
 #include "globals.h"
@@ -17,13 +19,11 @@
 #define LZSMASK		4095
 #define LZBUFFSIZE	8192	/* Max of above buffsizes */
 
-extern char *malloc();
-extern char *realloc();
 extern void de_lzah();
 extern unsigned char (*lzah_getbyte)();
 extern void de_lzh();
 
-typedef struct methodinfo {
+struct methodinfo {
 	char *name;
 	int number;
 };

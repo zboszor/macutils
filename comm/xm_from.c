@@ -4,9 +4,12 @@
 #include "../fileio/machdr.h"
 #include "../fileio/wrfile.h"
 #include "../util/masks.h"
+#include "../util/util.h"
 #include "globals.h"
 #include "protocol.h"
 
+extern void transname(char *name, char *namebuf, int n);
+extern void cleanup();
 extern int tgetc();
 extern int tgetrec();
 extern void tputc();

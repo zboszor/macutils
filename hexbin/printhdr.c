@@ -2,8 +2,7 @@
 #include "globals.h"
 
 /* print out header information in human-readable format */
-void print_header0(skip)
-int skip;
+void print_header0(int skip)
 {
     if(listmode) {
 	(void)fprintf(stderr, "name=\"%s\", ", trname);
@@ -14,8 +13,7 @@ int skip;
 }
 
 /* print out header information in human-readable format */
-void print_header1(skip1, skip2)
-int skip1, skip2;
+void print_header1(int skip1, int skip2)
 {
     char ftype[5], fauth[5];
 
@@ -33,7 +31,7 @@ int skip1, skip2;
 }
 
 /* print out header information in human-readable format */
-void print_header2(skip)
+void print_header2(int skip)
 {
     if(listmode) {
 	if(skip) {

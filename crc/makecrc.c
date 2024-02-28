@@ -37,7 +37,7 @@ extern char *strcat();
 
 static void initcrctab();
 
-main()
+int main(int argc, char **argv)
 {
     initcrctab("ccitt", 0x1021, 0xffff, 0, 16);
     initcrctab("kermit", 0x8408, 0, 1, 16);

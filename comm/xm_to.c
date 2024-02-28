@@ -6,6 +6,7 @@
 #include "globals.h"
 #include "protocol.h"
 
+extern void cleanup();
 extern int tgetc();
 extern void tputc();
 extern void tputrec();

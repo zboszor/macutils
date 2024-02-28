@@ -8,12 +8,12 @@ extern char *strrchr();
 #define search_last strrchr
 #endif /* BSD */
 
-extern void transname();
+extern void transname(char *name, char *namebuf, int n);
 
 extern char info[];
 extern char trname[];
 
-typedef struct macheader {
+struct macheader {
 	char m_name[128];
 	char m_type[4];
 	char m_author[4];

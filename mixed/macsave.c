@@ -1,3 +1,4 @@
+#include <getopt.h>
 #include "globals.h"
 #include "../util/patchlevel.h"
 #include "../fileio/wrfile.h"

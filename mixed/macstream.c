@@ -1,13 +1,13 @@
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <getopt.h>
 #include "../fileio/machdr.h"
 #include "../fileio/rdfile.h"
 #include "../fileio/rdfileopt.h"
 #include "../util/patchlevel.h"
+#include "../util/util.h"
 
-extern char *malloc();
-extern char *realloc();
-extern char *strcat();
-extern void exit();
 extern void transname();
 extern void do_indent();
 

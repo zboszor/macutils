@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <getopt.h>
 #ifdef TYPES_H
 #include <sys/types.h>
 #endif /* TYPES_H */
@@ -18,7 +20,8 @@
 #define LOCALOPT	"ilvcn:qVH"
 
 extern void exit();
-extern void backtrans();
+extern void backtrans(char *macname, char *name);
+
 #ifdef DL
 extern void dl();
 #endif /* DL */

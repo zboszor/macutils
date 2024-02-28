@@ -1,10 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <signal.h>
-#ifndef TERMIOS_H
-#include <sgtty.h>
-#else /* TERMIOS_H */
 #include <termios.h>
-#endif /* TERMIOS_H */
 #include <setjmp.h>
 #include "../util/masks.h"
 #include "protocol.h"
@@ -17,11 +15,7 @@ void tputc();
 
 static jmp_buf timobuf;
 
-#ifndef TERMIOS_H
-static struct sgttyb otty, ntty;
-#else /* TERMIOS_H */
 static struct termios otty, ntty;
-#endif /* TERMIOS_H */
 static int ttyfd;
 static int signal_set;
 
@@ -38,12 +32,6 @@ void setup_tty()
 	}
 	signal_set = 1;
     }
-#ifndef TERMIOS_H
-    (void)ioctl(ttyfd, TIOCGETP, &otty);
-    ntty = otty;
-    ntty.sg_flags = RAW | ANYP;
-    (void)ioctl(ttyfd, TIOCSETP, &ntty);
-#else /* TERMIOS_H */
     (void)tcgetattr(ttyfd, &otty);
     ntty = otty;
     ntty.c_lflag &= ~(ICANON | ISIG | ECHO);
@@ -53,17 +41,12 @@ void setup_tty()
     ntty.c_cc[VMIN] = 1;
     ntty.c_cc[VTIME] = 0;
     (void)tcsetattr(ttyfd, TCSAFLUSH, &ntty);
-#endif /* TERMIOS_H */
 }
 
 void reset_tty()
 {
     (void)sleep(1); /* Wait for output to drain */
-#ifndef TERMIOS_H
-    (void)ioctl(ttyfd, TIOCSETP, &otty);
-#else /* TERMIOS_H */
     (void)tcsetattr(ttyfd, TCSAFLUSH, &otty);
-#endif /* TERMIOS_H */
 }
 
 void cleanup(sig) int sig;
@@ -101,9 +84,7 @@ int i;
     }
 }
 
-tgetrec(buf, count, timeout)
-char *buf;
-int count, timeout;
+int tgetrec(char *buf, int count, int timeout)
 {
 int i, tot = 0, cc = count;
 

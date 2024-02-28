@@ -1,7 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-extern void exit();
-extern void transname();
+extern void transname(char *name, char *namebuf, int n);
 
 extern char info[];
 extern char text[];

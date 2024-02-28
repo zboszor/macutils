@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "macunpack.h"
 #ifdef DD
 #ifndef CPT
@@ -21,9 +22,7 @@
 #define ESC1SEEN	1
 #define ESC2SEEN	2
 
-extern char *malloc();
-extern char *realloc();
-extern int free();
+extern int gethuffbyte(node *l_nodelist);
 
 static void cpt_uncompact();
 static unsigned char *cpt_data;

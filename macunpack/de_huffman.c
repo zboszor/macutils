@@ -33,6 +33,8 @@ static node *nodeptr, *read_sub_tree();
 
 static int bit;
 
+int gethuffbyte(node *l_nodelist);
+
 void de_huffman(obytes)
 unsigned long obytes;
 {
@@ -121,8 +123,7 @@ void clrhuff()
     bit = 0;
 }
 
-int gethuffbyte(l_nodelist)
-node *l_nodelist;
+int gethuffbyte(node *l_nodelist)
 {
     register node *np;
 

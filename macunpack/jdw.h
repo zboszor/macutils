@@ -8,7 +8,7 @@
 #define	J_MTIME		34
 #define	J_FLENGTH	38
 
-typedef struct fileHdr {
+struct fileHdr {
 	char		magic[6];
 	unsigned long	type;
 	unsigned long	auth;
@@ -20,4 +20,3 @@ typedef struct fileHdr {
 	char		flength;
 	char		fname[32];	/* actually flength */
 };
-

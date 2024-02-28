@@ -1,3 +1,5 @@
+#include <getopt.h>
+#include <string.h>
 #include "macunpack.h"
 #include "globals.h"
 #include "../util/patchlevel.h"
@@ -8,7 +10,6 @@
 
 #define LOCALOPT	"ilvqVH"
 
-extern char *strcat();
 #ifdef STF
 extern void stf();
 #endif /* STF */
@@ -27,9 +28,7 @@ static void usage();
 
 static char options[128];
 
-int main(argc, argv)
-int argc;
-char *argv[];
+int main(int argc, char **argv)
 {
     int c;
     extern int optind;

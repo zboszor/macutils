@@ -1,3 +1,4 @@
+#include <string.h>
 #include "macunpack.h"
 #include "globals.h"
 #include "../fileio/machdr.h"

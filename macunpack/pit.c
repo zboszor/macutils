@@ -1,3 +1,4 @@
+#include <string.h>
 #include "macunpack.h"
 #ifdef PIT
 #include "../fileio/wrfile.h"
@@ -12,6 +13,7 @@
 #include "huffman.h"
 
 extern void read_tree();
+extern int getihuffbyte();
 extern void de_huffman();
 extern void set_huffman();
 

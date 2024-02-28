@@ -1,3 +1,4 @@
+#include <string.h>
 #include "macunpack.h"
 #ifdef SIT
 #include "globals.h"
@@ -19,10 +20,12 @@ extern void set_huffman();
 extern void de_lzah();
 extern unsigned char (*lzah_getbyte)();
 
-typedef struct methodinfo {
+struct methodinfo {
 	char *name;
 	int number;
 };
+
+typedef struct methodinfo methodinfo;
 
 static struct methodinfo methods[] = {
     {"NoComp",  nocomp},

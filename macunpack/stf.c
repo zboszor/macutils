@@ -1,3 +1,4 @@
+#include <string.h>
 #include "macunpack.h"
 #ifdef STF
 #include "stf.h"

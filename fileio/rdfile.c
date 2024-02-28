@@ -1,4 +1,7 @@
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 #ifdef TYPES_H
 #include <sys/types.h>
 #endif /* TYPES_H */
@@ -42,12 +45,7 @@
 #define RSRC_FORMAT	2
 #define UNIX_FORMAT	3
 
-extern char *malloc();
-extern char *realloc();
-extern char *strcpy();
-extern char *strncpy();
-extern char *strcat();
-extern void exit();
+extern void backtrans(char *macname, char *name);
 
 static void check_files();
 static void read_file();

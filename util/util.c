@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <unistd.h>
 #include "../fileio/fileglob.h"
 #include "masks.h"
 #include "util.h"

@@ -16,7 +16,7 @@ static void oflush();
 static int getq();
 static long get2q();
 static long get4q();
-static getqbuf();
+static void getqbuf(char *buf, int n);
 
 static char *g_macname;
 
@@ -380,9 +380,7 @@ static long get4q()
 }
 
 /* getqbuf(); q format -- read n characters from input into buf */
-static getqbuf(buf, n)
-    char *buf;
-    int n;
+static void getqbuf(char *buf, int n)
 {
     int i;
 

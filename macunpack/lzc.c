@@ -1,3 +1,4 @@
+#include <string.h>
 #include "macunpack.h"
 #ifdef LZC
 #include "globals.h"
