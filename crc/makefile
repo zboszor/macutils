@@ -16,7 +16,7 @@ $(CRCC):	makecrc
 	./makecrc
 
 makecrc:	makecrc.c
-	cc -O -o makecrc makecrc.c
+	$(CC) -O -o makecrc makecrc.c
 
 arc.o:	arc.c
 ccitt.o:	ccitt.c
