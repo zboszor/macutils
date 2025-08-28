@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "hexbin.h"
 #ifdef MU
 #include "globals.h"
@@ -9,15 +10,12 @@
 #include "buffer.h"
 #include "printhdr.h"
 
-extern void exit();
-
 static void do_mu_fork();
 static int mu_comp_to_bin();
-static int mu_convert();
+static int mu_convert(char *ibuf, char *obuf);
 
 /* mu format -- process .mu files */
-void mu(macname)
-char *macname;
+void mu(char *macname)
 {
     int n;
 
@@ -193,8 +191,7 @@ static int mu_comp_to_bin()
 
 #define SIXB(c) (((c)-0x20) & 0x3f)
 
-static int mu_convert(ibuf, obuf)
-char *ibuf, *obuf;
+static int mu_convert(char *ibuf, char *obuf)
 {
     register char *ip = ibuf;
     register char *op = obuf;

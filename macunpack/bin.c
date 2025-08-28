@@ -8,11 +8,7 @@
 #include "../util/util.h"
 #include "../util/masks.h"
 
-extern void mcb();
-
-void bin(header, data_size, UMcp)
-char *header;
-int data_size, UMcp;
+void bin(char *header, int data_size, int UMcp)
 {
     char hdr[INFOBYTES];
     unsigned long rsrcLength, dataLength;

@@ -6,14 +6,9 @@
 #include "globals.h"
 #include "protocol.h"
 
-extern void cleanup();
-extern int tgetc();
-extern void tputc();
-extern void tputrec();
-
-static void send_part();
+static void send_part(char *info, int size, int more);
 static int send_sync();
-static void send_rec();
+static void send_rec(char *buf, int bufsize, int recno);
 
 void xm_to()
 {
@@ -24,9 +19,7 @@ void xm_to()
     }
 }
 
-static void send_part(info, size, more)
-char *info;
-int size, more;
+static void send_part(char *info, int size, int more)
 {
 int recno = 1, i, status;
 
@@ -75,9 +68,7 @@ int c, i;
     return CAN;
 }
 
-static void send_rec(buf, bufsize, recno)
-char *buf;
-int bufsize, recno;
+static void send_rec(char *buf, int bufsize, int recno)
 {
 int i, cksum;
 char *bp;

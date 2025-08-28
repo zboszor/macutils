@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "hexbin.h"
 #ifdef HECX
 #include "globals.h"
@@ -10,21 +11,18 @@
 #include "buffer.h"
 #include "printhdr.h"
 
-extern void exit();
-
 static void do_o_forks();
-static long make_file();
-static void comp_c_crc();
-static void comp_e_crc();
+static long make_file(int compressed);
+static void comp_c_crc(unsigned char c);
+static void comp_e_crc(unsigned char c);
 static int comp_to_bin();
 static int hex_to_bin();
-static int hexit();
+static int hexit(int c);
 
 static int compressed;
 
 /* old format -- process .hex and .hcx files */
-void hecx(macname, filename)
-char *macname, *filename;
+void hecx(char *macname, char *filename)
 {
     int n;
 
@@ -35,7 +33,7 @@ char *macname, *filename;
     /* set up name for output files */
     if(macname[0] == '\0') {
 	/* strip directories */
-	macname = search_last(filename, '/');
+	macname = strrchr(filename, '/');
 	if(macname == NULL) {
 	    macname = filename;
 	} else {
@@ -150,8 +148,7 @@ static void do_o_forks()
     }
 }
 
-static long make_file(compressed)
-int compressed;
+static long make_file(int compressed)
 {
     register long nbytes = 0L;
 
@@ -171,15 +168,13 @@ int compressed;
     return nbytes;
 }
 
-static void comp_c_crc(c)
-unsigned char c;
+static void comp_c_crc(unsigned char c)
 {
     crc = (crc + c) & WORDMASK;
     crc = ((crc << 3) & WORDMASK) | (crc >> 13);
 }
 
-static void comp_e_crc(c)
-unsigned char c;
+static void comp_e_crc(unsigned char c)
 {
     crc += c;
 }
@@ -233,8 +228,7 @@ static int hex_to_bin()
     return outcount;
 }
 
-static int hexit(c)
-int c;
+static int hexit(int c)
 {
     if('0' <= c && c <= '9') {
 	return c - '0';

@@ -8,14 +8,8 @@
 #include "../fileio/rdfileopt.h"
 #include "../util/patchlevel.h"
 #include "../util/util.h"
+#include "../binhex/globals.h"
 #include "globals.h"
-
-extern void transname();
-extern void do_indent();
-extern void dofile();
-extern void setup_tty();
-extern void reset_tty();
-extern void xm_to();
 
 #define LOCALOPT	"ilqxyzoTVH"
 
@@ -26,13 +20,9 @@ static char *dir_stack;
 static int dir_ptr = -64;
 static int dir_max;
 
-int main(argc, argv)
-int argc;
-char **argv;
+int main(int argc, char **argv)
 {
     int c, i, j, n;
-    extern int optind;
-    extern char *optarg;
     int errflg;
     char text[32], ftype[5], fauth[5];
     int dir_skip = 0, write_it, query = 0, list = 0, info_only = 0;

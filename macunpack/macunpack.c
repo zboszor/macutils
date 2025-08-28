@@ -10,18 +10,6 @@
 
 #define LOCALOPT	"ilvqVH"
 
-#ifdef STF
-extern void stf();
-#endif /* STF */
-#ifdef PIT
-extern void pit();
-#endif /* PIT */
-#ifdef SIT
-extern void sit();
-#endif /* SIT */
-#ifdef CPT
-extern void cpt();
-#endif /* CPT */
 void macbinary();
 
 static void usage();
@@ -31,8 +19,6 @@ static char options[128];
 int main(int argc, char **argv)
 {
     int c;
-    extern int optind;
-    extern char *optarg;
     int errflg;
 
     set_wrfileopt(0);

@@ -11,15 +11,6 @@
 #include "../util/masks.h"
 #include "huffman.h"
 
-extern void de_compress();
-extern void core_compress();
-extern void de_huffman();
-extern void de_huffman_end();
-extern void read_tree();
-extern void set_huffman();
-extern void de_lzah();
-extern unsigned char (*lzah_getbyte)();
-
 struct methodinfo {
 	char *name;
 	int number;
@@ -38,26 +29,26 @@ static struct methodinfo methods[] = {
 };
 static int sit_nodeptr;
 
-static int readsithdr();
-static int sit_filehdr();
-static int sit_valid();
-static int sit_checkm();
-static char *sit_methname();
-static void sit_folder();
-static void sit_unstuff();
-static void sit_wrfile();
-static void sit_skip();
-static void sit_nocomp();
-static void sit_rle();
-static void sit_lzc();
-static void sit_huffman();
-static void sit_lzah();
+static int readsithdr(struct sitHdr *s);
+static int sit_filehdr(struct fileHdr *f, int skip);
+static int sit_valid(struct fileHdr f);
+static int sit_checkm(int f);
+static char *sit_methname(int n);
+static void sit_folder(char *name);
+static void sit_unstuff(struct fileHdr filehdr);
+static void sit_wrfile(unsigned long ibytes, unsigned long obytes, unsigned char type);
+static void sit_skip(unsigned long ibytes);
+static void sit_nocomp(unsigned long ibytes);
+static void sit_rle(unsigned long ibytes);
+static void sit_lzc(unsigned long ibytes);
+static void sit_huffman(unsigned long obytes);
+static void sit_lzah(unsigned long obytes);
 static unsigned char sit_getbyte();
-static void sit_fixhuf();
-static void sit_dosplit();
-static void sit_mw();
-static void sit_mw_out();
-static int sit_mw_in();
+static void sit_fixhuf(unsigned long ibytes);
+static void sit_dosplit(int ptr, int sum, int low, int upp);
+static void sit_mw(unsigned long ibytes);
+static void sit_mw_out(int ptr);
+static int sit_mw_in(int bits, unsigned long *ibytes);
 
 static short code6[258] = {
    1024,  512,  256,  256,  256,  256,  128,  128,
@@ -135,8 +126,7 @@ void sit()
     }
 }
 
-static int readsithdr(s)
-struct sitHdr *s;
+static int readsithdr(struct sitHdr *s)
 {
     char temp[SITHDRSIZE];
 
@@ -156,9 +146,7 @@ struct sitHdr *s;
     return 1;
 }
 
-static int sit_filehdr(f, skip)
-struct fileHdr *f;
-int skip;
+static int sit_filehdr(struct fileHdr *f, int skip)
 {
     register int i;
     unsigned long crc;
@@ -243,8 +231,7 @@ int skip;
     return 1;
 }
 
-static int sit_valid(f)
-struct fileHdr f;
+static int sit_valid(struct fileHdr f)
 {
     int fr = f.compRMethod, fd = f.compDMethod;
 
@@ -287,8 +274,7 @@ struct fileHdr f;
     return 0;
 }
 
-static int sit_checkm(f)
-int f;
+static int sit_checkm(int f)
 {
     switch(f) {
     case nocomp:
@@ -311,8 +297,7 @@ int f;
     /* NOTREACHED */
 }
 
-static char *sit_methname(n)
-int n;
+static char *sit_methname(int n)
 {
 int i, nmeths;
     nmeths = sizeof(methods) / sizeof(struct methodinfo);
@@ -324,8 +309,7 @@ int i, nmeths;
     return NULL;
 }
 
-static void sit_folder(name)
-char *name;
+static void sit_folder(char *name)
 {
     int i, recurse;
     char loc_name[64];
@@ -391,8 +375,7 @@ char *name;
     }
 }
 
-static void sit_unstuff(filehdr)
-struct fileHdr filehdr;
+static void sit_unstuff(struct fileHdr filehdr)
 {
     unsigned long crc;
 
@@ -443,9 +426,7 @@ struct fileHdr filehdr;
     }
 }
 
-static void sit_wrfile(ibytes, obytes, type)
-unsigned long ibytes, obytes;
-unsigned char type;
+static void sit_wrfile(unsigned long ibytes, unsigned long obytes, unsigned char type)
 {
     if(ibytes == 0) {
 	if(verbose) {
@@ -540,8 +521,7 @@ unsigned char type;
 }
 
 /* skip stuffit file */
-static void sit_skip(ibytes)
-unsigned long ibytes;
+static void sit_skip(unsigned long ibytes)
 {
     while(ibytes != 0) {
 	if(getc(infp) == EOF) {
@@ -558,8 +538,7 @@ unsigned long ibytes;
 /*---------------------------------------------------------------------------*/
 /*	Method 0: No compression					     */
 /*---------------------------------------------------------------------------*/
-static void sit_nocomp(ibytes)
-unsigned long ibytes;
+static void sit_nocomp(unsigned long ibytes)
 {
     int n;
 
@@ -576,8 +555,7 @@ unsigned long ibytes;
 /*---------------------------------------------------------------------------*/
 /*	Method 1: Run length encoding					     */
 /*---------------------------------------------------------------------------*/
-static void sit_rle(ibytes)
-unsigned long ibytes;
+static void sit_rle(unsigned long ibytes)
 {
     int ch, lastch, n, i;
 
@@ -606,8 +584,7 @@ unsigned long ibytes;
 /*---------------------------------------------------------------------------*/
 /*	Method 2: LZC compressed					     */
 /*---------------------------------------------------------------------------*/
-static void sit_lzc(ibytes)
-unsigned long ibytes;
+static void sit_lzc(unsigned long ibytes)
 {
     de_compress(ibytes, 14);
 }
@@ -615,8 +592,7 @@ unsigned long ibytes;
 /*---------------------------------------------------------------------------*/
 /*	Method 3: Huffman compressed					     */
 /*---------------------------------------------------------------------------*/
-static void sit_huffman(obytes)
-unsigned long obytes;
+static void sit_huffman(unsigned long obytes)
 {
     read_tree();
     de_huffman(obytes);
@@ -625,8 +601,7 @@ unsigned long obytes;
 /*---------------------------------------------------------------------------*/
 /*	Method 5: LZ compression plus adaptive Huffman encoding		     */
 /*---------------------------------------------------------------------------*/
-static void sit_lzah(obytes)
-unsigned long obytes;
+static void sit_lzah(unsigned long obytes)
 {
     lzah_getbyte = sit_getbyte;
     de_lzah(obytes);
@@ -640,8 +615,7 @@ static unsigned char sit_getbyte()
 /*---------------------------------------------------------------------------*/
 /*	Method 6: Compression with a fixed Huffman encoding		     */
 /*---------------------------------------------------------------------------*/
-static void sit_fixhuf(ibytes)
-unsigned long ibytes;
+static void sit_fixhuf(unsigned long ibytes)
 {
     int i, sum, codes, sym, num;
     char byte_int[4], byte_short[2];
@@ -736,8 +710,7 @@ unsigned long ibytes;
     }
 }
 
-static void sit_dosplit(ptr, sum, low, upp)
-int ptr, sum, low, upp;
+static void sit_dosplit(int ptr, int sum, int low, int upp)
 {
     int i, locsum;
 
@@ -764,8 +737,7 @@ int ptr, sum, low, upp;
 /*---------------------------------------------------------------------------*/
 /*	Method 8: Compression with a MW encoding			     */
 /*---------------------------------------------------------------------------*/
-static void sit_mw(ibytes)
-unsigned long ibytes;
+static void sit_mw(unsigned long ibytes)
 {
     int ptr;
     int max, max1, bits;
@@ -806,8 +778,7 @@ start_over:
     }
 }
 
-static void sit_mw_out(ptr)
-int ptr;
+static void sit_mw_out(int ptr)
 {
     int stack_ptr;
     int stack[16384];
@@ -824,9 +795,7 @@ int ptr;
     }
 }
 
-static int sit_mw_in(bits, ibytes)
-int bits;
-unsigned long *ibytes;
+static int sit_mw_in(int bits, unsigned long *ibytes)
 {
     int res, res1;
 

@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern void transname(char *name, char *namebuf, int n);
-
 extern char info[];
 extern char text[];
 

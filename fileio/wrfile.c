@@ -38,8 +38,6 @@
 #define MACI 9
 #endif /* SCAN */
 
-extern void exit();
-
 #ifdef UNDEF /* Do not declare sprintf; not portable (but lint will complain) */
 char *sprintf();
 #endif /* UNDEF */
@@ -52,7 +50,7 @@ static void wr_aufs_info();
 #ifdef APPLEDOUBLE
 static void check_appledouble();
 static void appledouble_namings();
-static void wr_appledouble_info();
+static void wr_appledouble_info(FILE *fp);
 #endif /* APPLEDOUBLE */
 #ifdef APPLESHARE
 static void mk_share_name();
@@ -104,8 +102,7 @@ static char *rbuffer = NULL, *dbuffer = NULL;
 static char *ptr;
 static unsigned long rsz, dsz, totsize, maxsize;
 
-void define_name(text)
-char *text;
+void define_name(char *text)
 {
     (void)sprintf(f_info, "%s.info", text);
     (void)sprintf(f_rsrc, "%s.rsrc", text);
@@ -120,9 +117,7 @@ char *text;
 #endif /* APPLESHARE */
 }
 
-void start_info(info, rsize, dsize)
-char *info;
-unsigned long rsize, dsize;
+void start_info(char *info, unsigned long rsize, unsigned long dsize)
 {
     int rs, ds;
 
@@ -326,9 +321,7 @@ void end_file()
 }
 
 #ifdef SCAN
-void do_idf(name, kind)
-char *name;
-int kind;
+void do_idf(char *name, int kind)
 {
     int n;
 
@@ -350,8 +343,7 @@ int kind;
 }
 #endif /* SCAN */
 
-void do_mkdir(name, header)
-char *name, *header;
+void do_mkdir(char *name, char *header)
 {
 struct stat sbuf;
 FILE *fp;
@@ -565,8 +557,7 @@ static void aufs_namings()
     (void)sprintf(f_data, "%s", share_name);
 }
 
-static void wr_aufs_info(fp)
-FILE *fp;
+static void wr_aufs_info(FILE *fp)
 {
     FileInfo theinfo;
     int n;
@@ -627,8 +618,7 @@ static void appledouble_namings()
     (void)sprintf(f_data, "%s", share_name);
 }
 
-static void wr_appledouble_info(fp)
-FILE *fp;
+static void wr_appledouble_info(FILE *fp)
 {
     FileInfo theinfo;
     int n;
@@ -693,8 +683,7 @@ static void mk_share_name()
 }
 #endif /* APPLESHARE */
 
-int wrfileopt(c)
-char c;
+int wrfileopt(char c)
 {
     switch(c) {
     case 'b':

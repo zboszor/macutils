@@ -7,50 +7,7 @@
 #include "zmahdr.h"
 #include "../util/util.h"
 
-extern void dir();
-extern void mcb();
-#ifdef BIN
-extern void bin();
-#endif /* BIN */
-#ifdef JDW
-extern void jdw();
-#endif /* JDW */
-#ifdef STF
-extern void stf();
-#endif /* STF */
-#ifdef LZC
-extern void lzc();
-#endif /* LZC */
-#ifdef ASQ
-extern void asq();
-#endif /* ASQ */
-#ifdef ARC
-extern void arc();
-#endif /* ARC */
-#ifdef PIT
-extern void pit();
-#endif /* PIT */
-#ifdef SIT
-extern void sit();
-#endif /* SIT */
-#ifdef DIA
-extern void dia();
-#endif /* DIA */
-#ifdef CPT
-extern void cpt();
-#endif /* CPT */
-#ifdef ZMA
-extern void zma();
-#endif /* ZMA */
-#ifdef LZH
-extern void lzh();
-#endif /* LZH */
-#ifdef DD
-extern void dd_file();
-extern void dd_arch();
-#endif /* DD */
-
-static void skip_file();
+static void skip_file(int skip);
 #ifdef SCAN
 static void get_idf();
 #endif /* SCAN */
@@ -517,8 +474,7 @@ void macbinary()
     }
 }
 
-static void skip_file(skip)
-int skip;
+static void skip_file(int skip)
 {
     char buff[1024];
     int n;

@@ -8,11 +8,6 @@
 #include "protocol.h"
 #include "globals.h"
 
-void cleanup();
-void timedout();
-int tgetc();
-void tputc();
-
 static jmp_buf timobuf;
 
 static struct termios otty, ntty;
@@ -49,20 +44,19 @@ void reset_tty()
     (void)tcsetattr(ttyfd, TCSAFLUSH, &otty);
 }
 
-void cleanup(sig) int sig;
+void cleanup(int sig)
 {
     reset_tty();
     exit(sig);
 }
 
-void timedout()
+void timedout(int sig)
 {
     (void)signal(SIGALRM, timedout);
     longjmp(timobuf, 1);
 }
 
-int tgetc(timeout)
-int timeout;
+int tgetc(int timeout)
 {
 char c;
 int i;
@@ -109,8 +103,7 @@ int i, tot = 0, cc = count;
     return 0;
 }
 
-void tputc(c)
-int c;
+void tputc(int c)
 {
 char cc;
 
@@ -118,9 +111,7 @@ char cc;
     (void)write(ttyfd, &cc, 1);
 }
 
-void tputrec(buf, count)
-char *buf;
-int count;
+void tputrec(char *buf, int count)
 {
     (void)write(ttyfd, buf, count);
 }

@@ -9,8 +9,7 @@ int data_size, rsrc_size;
 static int max_data_size, max_rsrc_size;
 static int do_data;
 
-void put_byte(c)
-char c;
+void put_byte(char c)
 {
     if(do_data) {
 	if(data_size >= max_data_size) {
@@ -43,8 +42,7 @@ char c;
     }
 }
 
-void set_put(data)
-int data;
+void set_put(int data)
 {
     do_data = data;
     if(do_data) {

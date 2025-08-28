@@ -1,14 +1,10 @@
 #include <stdio.h>
 #include <string.h>
-#ifdef BSD
-extern char *rindex();
-#define search_last rindex
-#else /* BSD */
-extern char *strrchr();
-#define search_last strrchr
-#endif /* BSD */
 
-extern void transname(char *name, char *namebuf, int n);
+extern void dl(char *macname, char *filename);
+extern void hecx(char *macname, char *filename);
+extern void hqx(char *macname);
+extern void mu(char *macname);
 
 extern char info[];
 extern char trname[];

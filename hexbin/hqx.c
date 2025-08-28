@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "hexbin.h"
 #ifdef HQX
 #include "globals.h"
@@ -8,8 +9,6 @@
 #include "../fileio/wrfile.h"
 #include "../util/util.h"
 #include "printhdr.h"
-
-extern void exit();
 
 static void get_header();
 static void oflush();
@@ -105,8 +104,7 @@ static long todo;
 
 #define output(c) { *op++ = (c); if(op >= &obuf[BUFSIZ]) oflush(); }
 
-void hqx(macname)
-char *macname;
+void hqx(char *macname)
 {
     int n, normlen, c;
     register char *in, *out;

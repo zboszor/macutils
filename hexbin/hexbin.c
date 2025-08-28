@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <getopt.h>
+#include <time.h>
 #ifdef TYPES_H
 #include <sys/types.h>
 #endif /* TYPES_H */
@@ -19,36 +20,16 @@
 
 #define LOCALOPT	"ilvcn:qVH"
 
-extern void exit();
-extern void backtrans(char *macname, char *name);
-
-#ifdef DL
-extern void dl();
-#endif /* DL */
-#ifdef HECX
-extern void hecx();
-#endif /* HECX */
-#ifdef HQX
-extern void hqx();
-#endif /* HQX */
-#ifdef MU
-extern void mu();
-#endif /* MU */
-
 static void usage();
-static void do_files();
-static int find_header();
+static void do_files(char *filename, char *macname);
+static int find_header(int again);
 
 static char options[128];
 
-int main(argc, argv)
-int argc;
-char **argv;
+int main(int argc, char **argv)
 {
     char *filename;
     char macname[32];
-    extern int optind;
-    extern char *optarg;
     int errflg;
     int c;
 
@@ -163,9 +144,9 @@ static char *extensions[] = {
     NULL
 };
 
-static void do_files(filename, macname)
-char *filename;	/* input file name -- extension optional */
-char *macname;	/* name to use on the mac side of things */
+/* filename: input file name -- extension optional */
+/* macname: name to use on the mac side of things */
+static void do_files(char *filename, char *macname)
 {
     char namebuf[256];
     char **ep;
@@ -238,8 +219,7 @@ nexttry:
 }
 
 /* eat characters until header detected, return which format */
-static int find_header(again)
-int again;
+static int find_header(int again)
 {
     int c, dl_start, llen;
     char *cp;

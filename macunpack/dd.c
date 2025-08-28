@@ -5,43 +5,40 @@
 #include "globals.h"
 #include "dd.h"
 #include "crc.h"
+#include "huffman.h"
 #include "../fileio/machdr.h"
 #include "../fileio/wrfile.h"
 #include "../fileio/fileglob.h"
 #include "../util/masks.h"
 #include "../util/util.h"
 
-extern void cpt_wrfile1();
-extern void core_compress();
-extern void de_compress();
-
-static void dd_name();
-static int dd_filehdr();
-static void dd_cfilehdr();
-static int dd_valid();
-static int dd_valid1();
-static char *dd_methname();
-static unsigned long dd_checksum();
-static void dd_chksum();
-static unsigned long dd_checkor();
-static void dd_do_delta();
-static void dd_delta();
-static void dd_delta3();
-static void dd_copy();
-static void dd_copyfile();
-static void dd_expand();
-static void dd_expandfile();
-static void dd_nocomp();
-static void dd_lzc();
+static void dd_name(unsigned char *bin_hdr);
+static int dd_filehdr(struct fileHdr *f, struct fileCHdr *cf, int skip);
+static void dd_cfilehdr(struct fileCHdr *f);
+static int dd_valid(int dmethod, int rmethod);
+static int dd_valid1(int method);
+static char *dd_methname(int n);
+static unsigned long dd_checksum(unsigned long init, char *buffer, unsigned long length);
+static void dd_chksum(struct fileHdr hdr, unsigned char *data);
+static unsigned long dd_checkor(unsigned long init, char *buffer, unsigned long length);
+static void dd_do_delta(char *out_ptr, unsigned long nbytes, int kind);
+static void dd_delta(char *out_ptr, unsigned long nbytes);
+static void dd_delta3(char *out_ptr, unsigned long nbytes);
+static void dd_copy(struct fileHdr hdr, unsigned char *data);
+static void dd_copyfile(unsigned long obytes, unsigned char *data);
+static void dd_expand(struct fileCHdr hdr, unsigned char *data);
+static void dd_expandfile(unsigned long obytes, unsigned long ibytes, int method, int kind, unsigned char *data, unsigned long chksum);
+static void dd_nocomp(unsigned long obytes, unsigned char *data);
+static void dd_lzc(unsigned long ibytes, unsigned long obytes, unsigned char *data, int mb, unsigned long chksum, unsigned long ckinit);
 #ifdef UNTESTED
-static void dd_rle();
+static void dd_rle(unsigned long ibytes, unsigned char *data);
 #ifdef NOTIMPLEMENTED
-static void dd_huffman();
+static void dd_huffman(unsigned long ibytes, unsigned char *data);
 #endif /* NOTIMPLEMENTED */
-static void dd_lzss();
-static int dd_getbits();
+static void dd_lzss(unsigned char *data, unsigned long chksum);
+static int dd_getbits(int n);
 #endif /* UNTESTED */
-static void dd_cpt_compat();
+static void dd_cpt_compat(unsigned long ibytes, unsigned long obytes, unsigned char *data, int sub_method, unsigned long chksum);
 
 struct methodinfo {
 	char *name;
@@ -73,8 +70,7 @@ static int dd_bitcount;
 static unsigned char *dd_bitptr;
 static char dd_LZbuff[2048];
 
-void dd_file(bin_hdr)
-unsigned char *bin_hdr;
+void dd_file(unsigned char *bin_hdr)
 {
     unsigned long data_size;
     int i;
@@ -147,8 +143,7 @@ unsigned char *bin_hdr;
     }
 }
 
-void dd_arch(bin_hdr)
-unsigned char *bin_hdr;
+void dd_arch(unsigned char *bin_hdr)
 {
     unsigned long data_size;
     unsigned long crc, filecrc;
@@ -281,8 +276,7 @@ unsigned char *bin_hdr;
     }
 }
 
-static void dd_name(bin_hdr)
-unsigned char *bin_hdr;
+static void dd_name(unsigned char *bin_hdr)
 {
     int nlength;
     unsigned char *extptr;
@@ -316,10 +310,7 @@ unsigned char *bin_hdr;
     bin_hdr[I_NAMEOFF] = nlength;
 }
 
-static int dd_filehdr(f, cf, skip)
-struct fileHdr *f;
-struct fileCHdr *cf;
-int skip;
+static int dd_filehdr(struct fileHdr *f, struct fileCHdr *cf, int skip)
 {
     register int i;
     unsigned long crc;
@@ -425,8 +416,7 @@ int skip;
     return to_uncompress;
 }
 
-static void dd_cfilehdr(f)
-struct fileCHdr *f;
+static void dd_cfilehdr(struct fileCHdr *f)
 {
     unsigned long crc;
     unsigned char *hdr;
@@ -474,14 +464,12 @@ struct fileCHdr *f;
     }
 }
 
-static int dd_valid(dmethod, rmethod)
-int dmethod, rmethod;
+static int dd_valid(int dmethod, int rmethod)
 {
     return dd_valid1(dmethod) | dd_valid1(rmethod);
 }
 
-static int dd_valid1(method)
-int method;
+static int dd_valid1(int method)
 {
     switch(method) {
     case nocomp:
@@ -499,8 +487,7 @@ int method;
     return 0;
 }
 
-static char *dd_methname(n)
-int n;
+static char *dd_methname(int n)
 {
 int i, nmeths;
     nmeths = sizeof(methods) / sizeof(struct methodinfo);
@@ -512,10 +499,7 @@ int i, nmeths;
     return NULL;
 }
 
-static unsigned long dd_checksum(init, buffer, length)
-unsigned long init;
-char *buffer;
-unsigned long length;
+static unsigned long dd_checksum(unsigned long init, char *buffer, unsigned long length)
 {
     int i;
     unsigned long cks;
@@ -527,9 +511,7 @@ unsigned long length;
     return cks & WORDMASK;
 }
 
-static void dd_chksum(hdr, data)
-struct fileHdr hdr;
-unsigned char *data;
+static void dd_chksum(struct fileHdr hdr, unsigned char *data)
 {
     unsigned long cks;
 
@@ -548,10 +530,7 @@ unsigned char *data;
     }
 }
 
-static unsigned long dd_checkor(init, buffer, length)
-unsigned long init;
-char *buffer;
-unsigned long length;
+static unsigned long dd_checkor(unsigned long init, char *buffer, unsigned long length)
 {
     int i;
     unsigned long cks;
@@ -563,10 +542,7 @@ unsigned long length;
     return cks & WORDMASK;
 }
 
-static void dd_do_delta(out_ptr, nbytes, kind)
-char *out_ptr;
-unsigned long nbytes;
-int kind;
+static void dd_do_delta(char *out_ptr, unsigned long nbytes, int kind)
 {
     switch(kind) {
     case 0:
@@ -586,9 +562,7 @@ int kind;
     }
 }
 
-static void dd_delta(out_ptr, nbytes)
-char *out_ptr;
-unsigned long nbytes;
+static void dd_delta(char *out_ptr, unsigned long nbytes)
 {
     int i, sum = 0;
 
@@ -598,9 +572,7 @@ unsigned long nbytes;
     }
 }
 
-static void dd_delta3(out_ptr, nbytes)
-char *out_ptr;
-unsigned long nbytes;
+static void dd_delta3(char *out_ptr, unsigned long nbytes)
 {
     int i, sum1 = 0, sum2 = 0, sum3 = 0;
 
@@ -621,9 +593,7 @@ unsigned long nbytes;
 /*---------------------------------------------------------------------------*/
 /*	Archive only, no compression					     */
 /*---------------------------------------------------------------------------*/
-static void dd_copy(hdr, data)
-struct fileHdr hdr;
-unsigned char *data;
+static void dd_copy(struct fileHdr hdr, unsigned char *data)
 {
     unsigned long cks;
 
@@ -673,9 +643,7 @@ unsigned char *data;
     }
 }
 
-static void dd_copyfile(obytes, data)
-unsigned long obytes;
-unsigned char *data;
+static void dd_copyfile(unsigned long obytes, unsigned char *data)
 {
     if(obytes == 0) {
 	return;
@@ -688,9 +656,7 @@ unsigned char *data;
 /*---------------------------------------------------------------------------*/
 /*	Possible compression, and perhaps in an archive			     */
 /*---------------------------------------------------------------------------*/
-static void dd_expand(hdr, data)
-struct fileCHdr hdr;
-unsigned char *data;
+static void dd_expand(struct fileCHdr hdr, unsigned char *data)
 {
     unsigned long cks;
     char *out_buf;
@@ -754,10 +720,7 @@ unsigned char *data;
     }
 }
 
-static void dd_expandfile(obytes, ibytes, method, kind, data, chksum)
-unsigned long obytes, ibytes, chksum;
-int method, kind;
-unsigned char *data;
+static void dd_expandfile(unsigned long obytes, unsigned long ibytes, int method, int kind, unsigned char *data, unsigned long chksum)
 {
     int sub_method, m1, m2;
     char *optr = out_ptr;
@@ -855,9 +818,7 @@ unsigned char *data;
 /*---------------------------------------------------------------------------*/
 /*	Method 0: no compression					     */
 /*---------------------------------------------------------------------------*/
-static void dd_nocomp(obytes, data)
-unsigned char *data;
-unsigned long obytes;
+static void dd_nocomp(unsigned long obytes, unsigned char *data)
 {
     copy(out_ptr, (char *)data, (int)obytes);
 }
@@ -865,10 +826,7 @@ unsigned long obytes;
 /*---------------------------------------------------------------------------*/
 /*	Method 1: LZC compressed					     */
 /*---------------------------------------------------------------------------*/
-static void dd_lzc(ibytes, obytes, data, mb, chksum, ckinit)
-unsigned char *data;
-unsigned long ibytes, obytes, chksum, ckinit;
-int mb;
+static void dd_lzc(unsigned long ibytes, unsigned long obytes, unsigned char *data, int mb, unsigned long chksum, unsigned long ckinit)
 {
     int i;
     char *out_buf;
@@ -899,9 +857,7 @@ int mb;
 /*---------------------------------------------------------------------------*/
 /*	Method 3: Run length encoding					     */
 /*---------------------------------------------------------------------------*/
-static void dd_rle(ibytes, data)
-unsigned char *data;
-unsigned long ibytes;
+static void dd_rle(unsigned long ibytes, unsigned char *data)
 {
     int ch, lastch, n, i;
 
@@ -930,9 +886,7 @@ unsigned long ibytes;
 /*---------------------------------------------------------------------------*/
 /*	Method 4: Huffman encoding					     */
 /*---------------------------------------------------------------------------*/
-static void dd_huffman(ibytes, data)
-unsigned char *data;
-unsigned long ibytes;
+static void dd_huffman(unsigned long ibytes, unsigned char *data)
 {
 }
 #endif /* NOTIMPLEMENTED */
@@ -940,9 +894,7 @@ unsigned long ibytes;
 /*---------------------------------------------------------------------------*/
 /*	Method 7: Slightly improved LZSS				     */
 /*---------------------------------------------------------------------------*/
-static void dd_lzss(data, chksum)
-unsigned char *data;
-unsigned long chksum;
+static void dd_lzss(unsigned char *data, unsigned long chksum)
 {
     int i, LZptr, LZbptr, LZlength;
     char *optr = out_ptr;
@@ -994,8 +946,7 @@ unsigned long chksum;
     }
 }
 
-static int dd_getbits(n)
-int n;
+static int dd_getbits(int n)
 {
     int r;
 
@@ -1014,10 +965,7 @@ int n;
 /*---------------------------------------------------------------------------*/
 /*	Method 8: Compactor compatible compression			     */
 /*---------------------------------------------------------------------------*/
-static void dd_cpt_compat(ibytes, obytes, data, sub_method, chksum)
-unsigned char *data;
-unsigned long ibytes, obytes, chksum;
-int sub_method;
+static void dd_cpt_compat(unsigned long ibytes, unsigned long obytes, unsigned char *data, int sub_method, unsigned long chksum)
 {
     unsigned long cks;
     char *optr = out_buffer;

@@ -1,3 +1,4 @@
+#include <getopt.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -45,9 +46,7 @@
 #define RSRC_FORMAT	2
 #define UNIX_FORMAT	3
 
-extern void backtrans(char *macname, char *name);
-
-static void check_files();
+static void check_files(int initial);
 static void read_file();
 static void enter_dir();
 static void exit_dir();
@@ -87,15 +86,13 @@ static void read_aufs_info();
 #ifdef APPLEDOUBLE
 #include "appledouble.h"
 static char infodir[] = ".AppleDouble";
-static void read_appledouble_info();
+static void read_appledouble_info(FILE *fd);
 #endif /* APPLEDOUBLE */
 #endif /* APPLESHARE */
 static char filename[255];
 static int filekind;
 
-void setup(argc, argv)
-int argc;
-char **argv;
+void setup(int argc, char **argv)
 {
     if(argc == 0) {
 	read_stdin = 1;
@@ -110,8 +107,7 @@ char **argv;
     }
 }
 
-static void check_files(initial)
-int initial;
+static void check_files(int initial)
 {
     struct stat stbuf;
     int i, j, n;
@@ -833,8 +829,7 @@ FILE *fd;
    size and format.  I have not yet seen something that will lead me to
    believe different.
 */
-static void read_appledouble_info(fd)
-FILE *fd;
+static void read_appledouble_info(FILE *fd)
 {
     FileInfo theinfo;
     int i, n;
@@ -935,10 +930,8 @@ static int get_stdin_file()
     return ISFILE;
 }
 
-int rdfileopt(c)
-char c;
+int rdfileopt(char c)
 {
-extern char *optarg;
 char name[32];
 
     switch(c) {

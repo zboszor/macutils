@@ -8,15 +8,9 @@
 #include "globals.h"
 #include "protocol.h"
 
-extern void transname(char *name, char *namebuf, int n);
-extern void cleanup();
-extern int tgetc();
-extern int tgetrec();
-extern void tputc();
-
-static void receive_part();
+static void receive_part(char *info, int size, int more);
 static int receive_sync();
-static int receive_rec();
+static int receive_rec(char *buf, int bufsize, int recno);
 
 char info[INFOBYTES];
 
@@ -40,9 +34,7 @@ char text[64];
     }
 }
 
-static void receive_part(info, size, more)
-char *info;
-int size, more;
+static void receive_part(char *info, int size, int more)
 {
 int recno = 1, i, status, naks = 0;
 
@@ -92,7 +84,7 @@ int c;
 	case ESC:
 	    break;
 	case CAN:
-	    cleanup();
+	    cleanup(0);
 	    break;
 	case EOT:
 	case TMO:
@@ -109,9 +101,7 @@ int c;
     return ACK;
 }
 
-static int receive_rec(buf, bufsize, recno)
-char *buf;
-int bufsize, recno;
+static int receive_rec(char *buf, int bufsize, int recno)
 {
 int i, cksum, c, rec, recbar;
 char *bp;

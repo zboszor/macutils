@@ -1,17 +1,15 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include "../fileio/fileglob.h"
 #include "masks.h"
 #include "util.h"
 
-extern void exit();
-
 #define MACTIMOFFS    1904
 
 static int mlength[] = {0, 31, 61, 92, 122, 153, 184, 214, 245, 275, 306, 337};
 
-unsigned long get4(bp)
-char *bp;
+unsigned long get4(char *bp)
 {
     register int i;
     long value = 0;
@@ -25,8 +23,7 @@ char *bp;
 }
 
 /* For if integers are stored wrong-endian. */
-unsigned long get4i(bp)
-char *bp;
+unsigned long get4i(char *bp)
 {
     register int i;
     long value = 0;
@@ -40,8 +37,7 @@ char *bp;
     return value;
 }
 
-unsigned long get2(bp)
-char *bp;
+unsigned long get2(char *bp)
 {
     register int i;
     int value = 0;
@@ -55,8 +51,7 @@ char *bp;
 }
 
 /* For if integers are stored wrong-endian. */
-unsigned long get2i(bp)
-char *bp;
+unsigned long get2i(char *bp)
 {
     register int i;
     long value = 0;
@@ -70,8 +65,7 @@ char *bp;
     return value;
 }
 
-unsigned char getb(fp)
-FILE *fp;
+unsigned char getb(FILE *fp)
 {
     int c;
 
@@ -84,9 +78,7 @@ FILE *fp;
     return c & BYTEMASK;
 }
 
-void copy(d, s, n)
-char *d, *s;
-int n;
+void copy(char *d, char *s, int n)
 {
     while(--n >= 0) {
 	*d++ = *s++;
@@ -112,9 +104,7 @@ int do_query()
     return 0;
 }
 
-void put4(dest, value)
-char *dest;
-unsigned long value;
+void put4(char *dest, unsigned long value)
 {
     *dest++ = (value >> 24) & BYTEMASK;
     *dest++ = (value >> 16) & BYTEMASK;
@@ -122,16 +112,13 @@ unsigned long value;
     *dest++ = value & BYTEMASK;
 }
 
-void put2(dest, value)
-char *dest;
-unsigned long value;
+void put2(char *dest, unsigned long value)
 {
     *dest++ = (value >> 8) & BYTEMASK;
     *dest++ = value & BYTEMASK;
 }
 
-void do_indent(indent)
-int indent;
+void do_indent(int indent)
 {
     int i;
 
@@ -140,8 +127,7 @@ int indent;
     }
 }
 
-real_time set_time(year, month, day, hours, minutes, seconds)
-int year, month, day, hours, minutes, seconds;
+real_time set_time(int year, int month, int day, int hours, int minutes, int seconds)
 {
     real_time toset;
 
@@ -154,8 +140,7 @@ int year, month, day, hours, minutes, seconds;
     return toset;
 }
 
-unsigned long tomactime(time)
-real_time time;
+unsigned long tomactime(real_time time)
 {
     long accum;
     int year;
@@ -172,8 +157,7 @@ real_time time;
     return (unsigned)accum;
 }
 
-real_time frommactime(accum)
-unsigned long accum;
+real_time frommactime(unsigned long accum)
 {
 long tmp1, tmp2;
 real_time time;

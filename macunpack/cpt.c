@@ -22,9 +22,6 @@
 #define ESC1SEEN	1
 #define ESC2SEEN	2
 
-extern int gethuffbyte(node *l_nodelist);
-
-static void cpt_uncompact();
 static unsigned char *cpt_data;
 static unsigned long cpt_datamax;
 static unsigned long cpt_datasize;
@@ -44,16 +41,16 @@ static int cpt_blocksize;
 static node cpt_Hufftree[512 + SLACK], cpt_LZlength[128 + SLACK],
 	    cpt_LZoffs[256 + SLACK];
 
-static int readcpthdr();
-static int cpt_filehdr();
-static void cpt_folder();
-static void cpt_uncompact();
-static void cpt_wrfile();
-void cpt_wrfile1();
-static void cpt_outch();
+static int readcpthdr(struct cptHdr *s);
+static int cpt_filehdr(struct fileHdr *f, char *hdr);
+static void cpt_folder(char *name, struct fileHdr fileh, char *cptptr);
+static void cpt_uncompact(struct fileHdr filehdr);
+static void cpt_wrfile(unsigned long ibytes, unsigned long obytes, unsigned short type);
+void cpt_wrfile1(unsigned char *in_char, unsigned long ibytes, unsigned long obytes, int type, unsigned long blocksize);
+static void cpt_outch(unsigned char ch);
 static void cpt_rle();
 static void cpt_rle_lzh();
-static void cpt_readHuff();
+static void cpt_readHuff(int size, struct node *Hufftree);
 static int cpt_get6bits();
 static int cpt_getbit();
 
@@ -166,8 +163,7 @@ void cpt()
     (void)free(cptindex);
 }
 
-static int readcpthdr(s)
-struct cptHdr *s;
+static int readcpthdr(struct cptHdr *s)
 {
     char temp[CHDRSIZE];
 
@@ -213,9 +209,7 @@ struct cptHdr *s;
     return 1;
 }
 
-static int cpt_filehdr(f, hdr)
-struct fileHdr *f;
-char *hdr;
+static int cpt_filehdr(struct fileHdr *f, char *hdr)
 {
     register int i;
     int n;
@@ -288,10 +282,7 @@ char *hdr;
     return 1;
 }
 
-static void cpt_folder(name, fileh, cptptr)
-char *name;
-struct fileHdr fileh;
-char *cptptr;
+static void cpt_folder(char *name, struct fileHdr fileh, char *cptptr)
 {
     int i, nfiles;
     char loc_name[64];
@@ -335,8 +326,7 @@ char *cptptr;
     }
 }
 
-static void cpt_uncompact(filehdr)
-struct fileHdr filehdr;
+static void cpt_uncompact(struct fileHdr filehdr)
 {
     if(filehdr.cptFlag & 1) {
 	(void)fprintf(stderr, "\tFile is password protected, skipping file\n");
@@ -400,9 +390,7 @@ struct fileHdr filehdr;
     }
 }
 
-static void cpt_wrfile(ibytes, obytes, type)
-unsigned long ibytes, obytes;
-unsigned short type;
+static void cpt_wrfile(unsigned long ibytes, unsigned long obytes, unsigned short type)
 {
     if(ibytes == 0) {
 	return;
@@ -420,10 +408,7 @@ unsigned short type;
     cpt_crc = (*updcrc)(cpt_crc, out_buffer, obytes);
 }
 
-void cpt_wrfile1(in_char, ibytes, obytes, type, blocksize)
-unsigned char *in_char;
-unsigned long ibytes, obytes, blocksize;
-int type;
+void cpt_wrfile1(unsigned char *in_char, unsigned long ibytes, unsigned long obytes, int type, unsigned long blocksize)
 {
     cpt_char = in_char;
     if(ibytes == 0) {
@@ -441,8 +426,7 @@ int type;
     }
 }
 
-static void cpt_outch(ch)
-unsigned char ch;
+static void cpt_outch(unsigned char ch)
 {
     cpt_LZbuff[cpt_LZptr++ & (CIRCSIZE - 1)] = ch;
     switch(cpt_outstat) {
@@ -558,9 +542,7 @@ typedef struct sf_entry {
 /* See routine LoadTree.  The parameter tree (actually an array and
    two integers) are only used locally in this version and hence locally
    declared.  The parameter nodes has been renamed Hufftree.... */
-static void cpt_readHuff(size, Hufftree)
-int size;
-struct node *Hufftree;
+static void cpt_readHuff(int size, struct node *Hufftree)
 {
     sf_entry tree_entry[256 + SLACK]; /* maximal number of elements */
     int tree_entries;

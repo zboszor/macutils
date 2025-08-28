@@ -10,15 +10,9 @@
 #include "../fileio/fileglob.h"
 #include "../fileio/wrfile.h"
 #include "../fileio/wrfileopt.h"
+#include "../mixed/globals.h"
 
 #define LOCALOPT	"lmxyzoTVH"
-
-extern void setup_tty();
-extern void reset_tty();
-extern void xm_from();
-extern void transname(char *name, char *namebuf, int n);
-
-extern char info[];
 
 static void usage();
 
@@ -28,8 +22,6 @@ static int listmode = 0;
 
 int main(int argc, char **argv)
 {
-    extern int optind;
-    extern char *optarg;
     int errflg;
     int c;
     char tname[64];

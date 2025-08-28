@@ -31,11 +31,10 @@
 /* ZIP used by COMPACTOR						*/
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-extern void exit();
-extern char *strcat();
-
-static void initcrctab();
+static void initcrctab(char *name, int poly, int init, int swapped, int bits);
 
 int main(int argc, char **argv)
 {
@@ -49,9 +48,7 @@ int main(int argc, char **argv)
     /*NOTREACHED*/
 }
 
-static void initcrctab(name, poly, init, swapped, bits)
-char *name;
-int poly, init, swapped, bits;
+static void initcrctab(char *name, int poly, int init, int swapped, int bits)
 {
     register  int b, i;
     unsigned short v;
@@ -111,10 +108,7 @@ int poly, init, swapped, bits;
     }
     (void)fprintf(fd, "};\n");
     (void)fprintf(fd, "\n");
-    (void)fprintf(fd, "unsigned long %s_updcrc(icrc, icp, icnt)\n", name);
-    (void)fprintf(fd, "    unsigned long icrc;\n");
-    (void)fprintf(fd, "    unsigned char *icp;\n");
-    (void)fprintf(fd, "    int icnt;\n");
+    (void)fprintf(fd, "unsigned long %s_updcrc(unsigned long icrc, unsigned char *icp, int icnt)\n", name);
     (void)fprintf(fd, "{\n");
     if(bits == 16) {
 	(void)fprintf(fd, "#define M1 0xff\n");

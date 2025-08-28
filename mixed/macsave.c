@@ -1,4 +1,5 @@
 #include <getopt.h>
+#include <string.h>
 #include "globals.h"
 #include "../util/patchlevel.h"
 #include "../fileio/wrfile.h"
@@ -7,20 +8,15 @@
 
 #define LOCALOPT	"ilqVH"
 
-extern char *strcat();
 void macbinary();
 
 static void usage();
 
 static char options[128];
 
-int main(argc, argv)
-int argc;
-char *argv[];
+int main(int argc, char *argv[])
 {
     int c;
-    extern int optind;
-    extern char *optarg;
     int errflg;
 
     set_wrfileopt(0);

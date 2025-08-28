@@ -1,4 +1,5 @@
 #include <string.h>
+#include <time.h>
 #include "macunpack.h"
 #ifdef STF
 #include "stf.h"
@@ -9,9 +10,6 @@
 #include "../fileio/machdr.h"
 #include "../util/util.h"
 
-extern void de_huffman();
-extern void set_huffman();
-
 typedef struct{
     int num;
     int next;
@@ -20,12 +18,11 @@ typedef struct{
 static table_struct table[511];
 static char length[256];
 
-static void stf_wrfile();
-static void stf_wrfork();
-static void stf_construct();
+static void stf_wrfile(unsigned long rsrcLength, unsigned long dataLength, unsigned long ibytes);
+static void stf_wrfork(unsigned long *num, unsigned long towrite, int offs);
+static void stf_construct(int n);
 
-void stf(ibytes)
-unsigned long ibytes;
+void stf(unsigned long ibytes)
 {
     char magic[3], fauth[5], ftype[5];
     int filel, i;
@@ -93,8 +90,7 @@ unsigned long ibytes;
     stf_wrfile((unsigned long)rsrcLength, (unsigned long)dataLength, ibytes);
 }
 
-static void stf_wrfile(rsrcLength, dataLength, ibytes)
-unsigned long rsrcLength, dataLength, ibytes;
+static void stf_wrfile(unsigned long rsrcLength, unsigned long dataLength, unsigned long ibytes)
 {
     unsigned long num = 0;
 
@@ -117,9 +113,7 @@ unsigned long rsrcLength, dataLength, ibytes;
     }
 }
 
-static void stf_wrfork(num, towrite, offs)
-unsigned long *num, towrite;
-int offs;
+static void stf_wrfork(unsigned long *num, unsigned long towrite, int offs)
 {
     int c, k, max, i, i1;
     char *tmp_out_ptr;
@@ -187,8 +181,7 @@ int offs;
     }
 }
 
-static void stf_construct(n)
-int n;
+static void stf_construct(int n)
 {
     int i, i1, i2, j1, k;
 

@@ -12,15 +12,10 @@
 #include "../util/util.h"
 #include "huffman.h"
 
-extern void read_tree();
-extern int getihuffbyte();
-extern void de_huffman();
-extern void set_huffman();
-
-static int pit_filehdr();
-static void pit_wrfile();
-static void pit_nocomp();
-static void pit_huffman();
+static int pit_filehdr(struct pit_header *f, int compr);
+static void pit_wrfile(unsigned long bytes, int type);
+static void pit_nocomp(unsigned long ibytes);
+static void pit_huffman(unsigned long obytes);
 
 void pit()
 {
@@ -160,9 +155,7 @@ void pit()
     }
 }
 
-static int pit_filehdr(f, compr)
-struct pit_header *f;
-int compr;
+static int pit_filehdr(struct pit_header *f, int compr)
 {
     register int i;
     unsigned long crc;
@@ -239,9 +232,7 @@ int compr;
     return 1;
 }
 
-static void pit_wrfile(bytes, type)
-unsigned long bytes;
-int type;
+static void pit_wrfile(unsigned long bytes, int type)
 {
     if(bytes == 0) {
 	return;
@@ -258,8 +249,7 @@ int type;
 /*---------------------------------------------------------------------------*/
 /*	No compression							     */
 /*---------------------------------------------------------------------------*/
-static void pit_nocomp(ibytes)
-unsigned long ibytes;
+static void pit_nocomp(unsigned long ibytes)
 {
     int n;
 
@@ -276,8 +266,7 @@ unsigned long ibytes;
 /*---------------------------------------------------------------------------*/
 /*	Huffman compression						     */
 /*---------------------------------------------------------------------------*/
-static void pit_huffman(obytes)
-unsigned long obytes;
+static void pit_huffman(unsigned long obytes)
 {
     de_huffman(obytes);
 }

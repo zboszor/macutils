@@ -44,9 +44,7 @@ static int clear_flg = 0;
 
 static int toread;
 
-void de_compress(ibytes, mb)
-unsigned long ibytes;
-int mb;
+void de_compress(unsigned long ibytes, int mb)
 {
     register unsigned char *stackp;
     register int finchar;
@@ -122,8 +120,8 @@ static unsigned char rmask[9] =
 
 static int get_core_bytes;
 static char *core_ptr;
-static int file_bytes();
-static int core_bytes();
+static int file_bytes(char *buf, int length);
+static int core_bytes(char *buf, int length);
 
 static long getcode()
 {
@@ -194,16 +192,12 @@ static long getcode()
     return code;
 }
 
-static int file_bytes(buf, length)
-char *buf;
-int length;
+static int file_bytes(char *buf, int length)
 {
     return fread(buf, 1, length, infp);
 }
 
-static int core_bytes(buf, length)
-char *buf;
-int length;
+static int core_bytes(char *buf, int length)
 {
     int i;
 
@@ -213,8 +207,7 @@ int length;
     return length;
 }
 
-void core_compress(ptr)
-char *ptr;
+void core_compress(char *ptr)
 {
     core_ptr = ptr;
     get_core_bytes = ptr != NULL;

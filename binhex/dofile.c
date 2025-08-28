@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include "../fileio/machdr.h"
 #include "../fileio/rdfile.h"
-
-extern int dorep;
-extern unsigned long binhex_crcinit;
-extern unsigned long binhex_updcrc();
+#include "../hexbin/crc.h"
+#include "globals.h"
 
 #define RUNCHAR 0x90
 
@@ -17,12 +15,12 @@ static int rep_char;
 static int rep_count;
 
 void doheader();
-void dofork();
-void outbyte();
-void finish();
-void outbyte1();
-void out6bit();
-void outchar();
+static void dofork(char *fork, int size);
+static void outbyte(int b);
+static void finish();
+static void outbyte1(int b);
+static void out6bit(char c);
+static void outchar(char c);
 
 void dofile()
 {
@@ -79,9 +77,7 @@ int i, n;
     outbyte((int)(crc & 0xff));
 }
 
-void dofork(fork, size)
-char *fork;
-int size;
+static void dofork(char *fork, int size)
 {
 unsigned long crc;
 int i;
@@ -94,8 +90,7 @@ int i;
     outbyte((int)(crc & 0xff));
 }
 
-void outbyte(b)
-int b;
+static void outbyte(int b)
 {
     b &= 0xff;
     if(dorep && (b == rep_char)) {
@@ -127,7 +122,7 @@ int b;
     }
 }
 
-void finish()
+static void finish()
 {
     if(rep_count > 0) {
 	if(rep_count > 3) {
@@ -151,8 +146,7 @@ void finish()
     }
 }
 
-void outbyte1(b)
-int b;
+static void outbyte1(int b)
 {
     switch(state) {
     case 0:
@@ -175,14 +169,12 @@ int b;
     }
 }
 
-void out6bit(c)
-char c;
+static void out6bit(char c)
 {
     outchar(codes[c & 0x3f]);
 }
 
-void outchar(c)
-char c;
+static void outchar(char c)
 {
     (void)putchar(c);
     if(++pos_ptr > 64) {

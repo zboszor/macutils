@@ -2,8 +2,6 @@
 #include <sys/types.h>
 #include <sys/dir.h>
 
-char *strncpy();
-
 #ifdef MAXNAMLEN	/* 4.2 BSD */
 #define FNAMELEN MAXNAMLEN
 #else

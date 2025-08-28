@@ -21,14 +21,10 @@ static int bitsused;
 static unsigned int blocksize;
 static unsigned int decode_c();
 static unsigned int decode_p();
-static void make_table();
+static void make_table(int nchar, unsigned char bitlen[], int tablebits, unsigned int table[]);
 
 /* lzh compression */
-void de_lzh(ibytes, obytes, data, bits)
-long ibytes;
-long obytes;
-char **data;
-int bits;
+void de_lzh(long ibytes, long obytes, char **data, int bits)
 {
     unsigned int i, r, c;
     int remains;
@@ -86,10 +82,7 @@ static unsigned int left[2 * NC - 1], right[2 * NC - 1];
 static unsigned char c_len[NC], pt_len[NPT];
 static unsigned int c_table[4096], pt_table[256];
 
-static void read_pt_len(nn, nbit, i_special)
-int nn;
-int nbit;
-int i_special;
+static void read_pt_len(int nn, int nbit, int i_special)
 {
     int i, c, n;
     unsigned int mask;
@@ -236,11 +229,7 @@ static unsigned int decode_p()
     return j;
 }
 
-static void make_table(nchar, bitlen, tablebits, table)
-int nchar;
-unsigned char bitlen[];
-int tablebits;
-unsigned int table[];
+static void make_table(int nchar, unsigned char bitlen[], int tablebits, unsigned int table[])
 {
     unsigned int count[17], weight[17], start[18], *p;
     unsigned int i, k, len, ch, jutbits, avail, nextcode, mask;

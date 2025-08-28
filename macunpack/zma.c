@@ -11,8 +11,6 @@
 #include "../util/masks.h"
 #include "../util/util.h"
 
-extern void de_lzh();
-
 /* We do allow for possible backpointing, so we allocate the archive in core */
 static char *zma_archive;
 static char *zma_current;
@@ -20,16 +18,14 @@ static char *zma_filestart;
 static unsigned long zma_length;
 static long zma_archlength;
 
-static int zma_filehdr();
-static void zma_folder();
-static void zma_mooz();
-static void zma_wrfile();
-static void zma_nocomp();
-static void zma_lzh();
+static int zma_filehdr(struct fileHdr *f, int skip);
+static void zma_folder(struct fileHdr fhdr);
+static void zma_mooz(struct fileHdr filehdr);
+static void zma_wrfile(unsigned long ibytes, unsigned long obytes, char type);
+static void zma_nocomp(unsigned long ibytes);
+static void zma_lzh(unsigned long ibytes);
 
-void zma(start, length)
-    char *start;
-    unsigned long length;
+void zma(char *start, unsigned long length)
 {
     struct fileHdr filehdr;
     int i, toread;
@@ -122,9 +118,7 @@ void zma(start, length)
     }
 }
 
-static int zma_filehdr(f, skip)
-struct fileHdr *f;
-int skip;
+static int zma_filehdr(struct fileHdr *f, int skip)
 {
     register int i;
     int n;
@@ -228,8 +222,7 @@ int skip;
     return 1;
 }
 
-static void zma_folder(fhdr)
-struct fileHdr fhdr;
+static void zma_folder(struct fileHdr fhdr)
 {
     int i;
     char loc_name[64];
@@ -271,8 +264,7 @@ struct fileHdr fhdr;
     }
 }
 
-static void zma_mooz(filehdr)
-struct fileHdr filehdr;
+static void zma_mooz(struct fileHdr filehdr)
 {
     unsigned long crc;
 
@@ -323,9 +315,7 @@ struct fileHdr filehdr;
     }
 }
 
-static void zma_wrfile(ibytes, obytes, type)
-unsigned long ibytes, obytes;
-char type;
+static void zma_wrfile(unsigned long ibytes, unsigned long obytes, char type)
 {
     if(ibytes == 0) {
 	if(verbose) {
@@ -363,8 +353,7 @@ char type;
 /*---------------------------------------------------------------------------*/
 /*	No compression							     */
 /*---------------------------------------------------------------------------*/
-static void zma_nocomp(ibytes)
-unsigned long ibytes;
+static void zma_nocomp(unsigned long ibytes)
 {
     int n = ibytes;
     char *ptr = out_buffer;
@@ -377,8 +366,7 @@ unsigned long ibytes;
 /*---------------------------------------------------------------------------*/
 /*	LZ compression plus Huffman encoding				     */
 /*---------------------------------------------------------------------------*/
-static void zma_lzh(ibytes)
-unsigned long ibytes;
+static void zma_lzh(unsigned long ibytes)
 {
     /* Controlled by ibutes only */
     de_lzh((long)ibytes, (long)(-1), &zma_filestart, 13);

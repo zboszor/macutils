@@ -2,12 +2,9 @@
 #include "../fileio/machdr.h"
 #include "../fileio/kind.h"
 #include "../util/util.h"
+#include "../macunpack/globals.h"
 
-extern void dir();
-extern void mcb();
-extern void do_indent();
-
-static void skip_file();
+static void skip_file(int skip);
 #ifdef SCAN
 static void get_idf();
 #endif /* SCAN */
@@ -58,8 +55,7 @@ void macbinary()
     }
 }
 
-static void skip_file(skip)
-    int skip;
+static void skip_file(int skip)
 {
     char buff[1024];
     int n;

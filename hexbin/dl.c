@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "hexbin.h"
 #ifdef DL
 #include "globals.h"
@@ -9,8 +10,6 @@
 #include "buffer.h"
 #include "printhdr.h"
 
-extern void exit();
-
 static long dl_fork();
 static int nchar();
 static int nextc();
@@ -18,8 +17,7 @@ static int nextc();
 static char *icp = &line[0];
 
 /* oldest format -- process .dl files */
-void dl(macname, filename)
-char *macname, *filename;
+void dl(char *macname, char *filename)
 {
     int n;
 
@@ -32,7 +30,7 @@ char *macname, *filename;
     /* set up for Mac name */
     if(macname[0] == '\0') {
 	/* strip directories */
-	macname = search_last(filename, '/');
+	macname = strrchr(filename, '/');
 	if(macname == NULL) {
 	    macname = filename;
 	} else {
